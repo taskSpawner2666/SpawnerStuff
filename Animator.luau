@@ -94,7 +94,7 @@ function AnimPlayer.new(charRig, anim)
     if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
         self.Sequence, self.Looped = ConvertToTable(anim)
     elseif typeof(anim) == 'table' then
-        self.Sequence = ConvertAnimationTable(anim)
+        self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped or false
     end
     self.Character = charRig
     self.Motors, self.LowerMap = BuildMotorMap(charRig)
