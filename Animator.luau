@@ -6,7 +6,6 @@ local Services = {
     StarterGui = game:GetService('StarterGui');
     RunService = game:GetService('RunService');
     TweenService = game:GetService('TweenService');
-    InsertService = game:GetService('InsertService');
 }
 
 local R6Map = {
