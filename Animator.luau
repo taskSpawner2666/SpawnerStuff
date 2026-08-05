@@ -184,12 +184,15 @@ function AnimPlayer:RestoreMotors()
 end
 
 local Character = Services.Players.LocalPlayer.Character
+local RootPart = Character:FindFirstChild("HumanoidRootPart")
 local Humanoid = Character:FindFirstChild('Humanoid')
+local Head = Character:FindFirstChild("Head")
+
 Services.RunService.RenderStepped:Connect(function(deltaTime: number)
     local function Alpha(n)
         return math.clamp(n * deltaTime * 60, 0, 1)
     end
-	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CF(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
+	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
 end)
 
 pcall(function()
