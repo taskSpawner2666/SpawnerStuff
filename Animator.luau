@@ -62,8 +62,11 @@ end
 
 local function ReadPose(pose, data)
     data[pose.Name] = {
-        CFrame = CFrame.new(unpack(pose.CFrame))
+        CFrame = CFrame.new(unpack(pose.CFrame)),
+        EasingStyle = pose.EasingStyle,
+        EasingDirection = pose.EasingDirection,
     }
+
     for _, sub in ipairs(pose.SubPoses) do
         ReadPose(sub, data)
     end
@@ -165,7 +168,15 @@ function AnimPlayer:Play()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
 		            
-		            local cf = pose1.CFrame:Lerp(pose2.CFrame, alpha)
+		            local style = Enum.EasingStyle[pose1.EasingStyle] or Enum.EasingStyle.Linear
+		            local direction = Enum.EasingDirection[pose1.EasingDirection] or Enum.EasingDirection.In
+		            local easedAlpha = TweenService:GetValue(
+		                alpha,
+		                style,
+		                direction
+                    )
+		            
+		            local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
 		            motor.C0 = self.SavedC0[motor] * cf
 		        end)
 		    end
