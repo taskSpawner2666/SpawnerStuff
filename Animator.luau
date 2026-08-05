@@ -103,6 +103,15 @@ function AnimPlayer.new(charRig, anim)
     self.TimePosition, self.CurrentKeyframe = 0, 1
     self.IsPlaying = false
     self.SavedC0 = {}
+    
+    local Humanoid = charRig:FindFirstChild('Humanoid')
+    if Humanoid then
+        self.diedConnection = Humanoid.Died:Connect(function()
+            self:Stop()
+            self:RestoreMotors()
+        end)
+    end
+    
     for _, m in pairs(self.Motors) do
 		self.SavedC0[m] = m.C0
     end
@@ -164,14 +173,25 @@ function AnimPlayer:Play()
 end
 
 function AnimPlayer:Stop()
-    local Animate = self.Character:FindFirstChild('Animate')
-    local Animator = Instance.new('Animator', self.Character.Humanoid)
-    if Animate then Animate.Enabled = true end
+    if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
-
+    
     if self.Connection then
         self.Connection:Disconnect()
         self.Connection = nil
+    end
+    
+    if self.diedConnection then
+        self.diedConnection:Disconnect()
+        self.diedConnection = nil
+    end
+    
+    local Animate = self.Character:FindFirstChild('Animate')
+    if Animate then Animate.Enabled = true end
+    
+    local Humanoid = self.Character:FindFirstChild('Humanoid')
+    if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
+        local Animator = Instance.new('Animator', Humanoid)
     end
     
     self.Stopped:Fire()
