@@ -69,8 +69,8 @@ end
 local function ReadPose(pose, data)  
     data[pose.Name] = {  
         CFrame = CFrame.new(unpack(pose.CFrame));  
-        EasingStyle = pose.EasingStyle;  
-        EasingDirection = pose.EasingDirection;  
+        EasingStyle = pose.EasingStyle.Name;  
+        EasingDirection = pose.EasingDirection.Name;  
     }  
     for _, sub in ipairs(pose.SubPoses) do  
         ReadPose(sub, data)  
