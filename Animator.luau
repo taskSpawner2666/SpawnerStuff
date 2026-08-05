@@ -1,8 +1,9 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = "Animator v1.5"
+AnimPlayer.ClassName = 'Animator v1.5'
 
 local Services = {
+    Players = game:GetService('Players');
     StarterGui = game:GetService('StarterGui');
     RunService = game:GetService('RunService');
     TweenService = game:GetService('TweenService');
@@ -34,9 +35,9 @@ local function BuildMotorMap(rig)
 end
 
 local function ConvertToTable(kfs)
-	if not kfs:IsA("KeyframeSequence") then
+	if not kfs:IsA('KeyframeSequence') then
 	    for _, obj in ipairs(kfs:GetDescendants()) do
-	        if obj:IsA("KeyframeSequence") then
+	        if obj:IsA('KeyframeSequence') then
 	            kfs = obj
                 break
             end
@@ -110,8 +111,8 @@ function AnimPlayer.new(charRig, anim)
 end
 
 function AnimPlayer:Play()
-    local Animate = self.Character:FindFirstChild("Animate")
-    local Animator = self.Character.Humanoid:FindFirstChild("Animator")
+    local Animate = self.Character:FindFirstChild('Animate')
+    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
     if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
 	if self.IsPlaying then return end
 	self:RestoreMotors()
@@ -163,8 +164,8 @@ function AnimPlayer:Play()
 end
 
 function AnimPlayer:Stop()
-    local Animate = self.Character:FindFirstChild("Animate")
-    local Animator = Instance.new("Animator", self.Character.Humanoid)
+    local Animate = self.Character:FindFirstChild('Animate')
+    local Animator = Instance.new('Animator', self.Character.Humanoid)
     if Animate then Animate.Enabled = true end
     self.IsPlaying = false
 
@@ -182,16 +183,20 @@ function AnimPlayer:RestoreMotors()
 	end
 end
 
-AnimPlayer.self.Character.Humanoid.Died = function()
-    self:Stop()
-    self:RestoreMotors
-end
+local Character = Services.Players.LocalPlayer.Character
+local Humanoid = Character:FindFirstChild('Humanoid')
+Services.RunService.RenderStepped:Connect(function(deltaTime: number)
+    local function Alpha(n)
+        return math.clamp(n * deltaTime * 60, 0, 1)
+    end
+	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CF(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
+end)
 
 pcall(function()
-    Services.StarterGui:SetCore("SendNotification", {
-        Title = "API Animator",
-        Text = "TaskSpawner API Loaded",
-        Button1 = "Ok!"
+    Services.StarterGui:SetCore('SendNotification', {
+        Title = 'API Animator',
+        Text = 'TaskSpawner API Loaded',
+        Button1 = 'Ok!'
     })
 end)
     warn(AnimPlayer.ClassName)
