@@ -105,7 +105,13 @@ function AnimPlayer.new(charRig, anim)
     for _, m in pairs(self.Motors) do
 		self.SavedC0[m] = m.C0
     end
-
+    
+    local Humanoid = self.Character:FindFirstChild("Humanoid")
+    Humanoid.Died:Connect(function()
+        self:Stop()
+        self:RestoreMotors()
+    end)
+    
     return self
 end
 
@@ -181,12 +187,6 @@ function AnimPlayer:RestoreMotors()
 		pcall(function() motor.C0 = origC0 end)
 	end
 end
-
-local Humanoid = self.Character:FindFirstChild("Humanoid")
-Humanoid.Died:Connect(function()
-    self:Stop()
-    self:RestoreMotors()
-end)
 
 pcall(function()
     Services.StarterGui:SetCore("SendNotification", {
