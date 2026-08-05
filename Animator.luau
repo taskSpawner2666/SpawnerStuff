@@ -115,6 +115,7 @@ function AnimPlayer:Play()
     local Animator = self.Character.Humanoid:FindFirstChild("Animator")
     if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
 	if self.IsPlaying then return end
+	self:RestoreMotors()
 	self.IsPlaying = true
 	self.CurrentKeyframe = 1
 	self.TimePosition = 0
@@ -128,6 +129,7 @@ function AnimPlayer:Play()
 				self.DidLoop:Fire()
 			else
 				self:Stop()
+				self:RestoreMotors()
 				return
 			end
 		end
