@@ -169,7 +169,7 @@ function AnimPlayer:Play()
                             Enum.EasingDirection[pose2.EasingDirection]
                         )
                     end
-
+                    print(Enum.EasingStyle[pose2.EasingStyle])
                     local cf
                     if pose2.EasingStyle == "Constant" then
                         cf = pose1.CFrame
