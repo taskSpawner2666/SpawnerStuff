@@ -90,11 +90,11 @@ function AnimPlayer.new(charRig, anim)
     self.KeyframeReached = Signal.new()
     self.DidLoop = Signal.new()
     self.Sequence = {}
-    self.Looped = nil
+    self.Looped = false
     if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
         self.Sequence, self.Looped = ConvertToTable(anim)
     elseif typeof(anim) == 'table' then
-        self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped == true
+        self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped or false
     end
     self.Character = charRig
     self.Motors, self.LowerMap = BuildMotorMap(charRig)
@@ -125,10 +125,13 @@ function AnimPlayer:Play()
 		if self.TimePosition > self.Length then
 			if self.Looped then
 				self.TimePosition -= self.Length
+				self.CurrentKeyframe = 1
 				self.DidLoop:Fire()
+				print("LOOP!")
 			else
 				self:Stop()
 				self:RestoreMotors()
+				print("STOP!")
 				return
 			end
 		end
