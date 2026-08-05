@@ -158,13 +158,24 @@ function AnimPlayer:Play()
 		            
 		            local style = Enum.EasingStyle[pose2.EasingStyle] or Enum.EasingStyle.Linear
 		            local direction = Enum.EasingDirection[pose2.EasingDirection] or Enum.EasingDirection.InOut
-		            local easedAlpha = Services.TweenService:GetValue(
-		                alpha,
-		                style,
-		                direction
-		            )
+		            local easedAlpha
+		            
+		            if pose2.EasingStyle == "Constant" then
+		                easedAlpha = 0
+                    else
+                        easedAlpha = Services.TweenService:GetValue(
+                            alpha,
+                            Enum.EasingStyle[pose2.EasingStyle],
+                            Enum.EasingDirection[pose2.EasingDirection]
+                        )
+                    end
 
-                    local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
+                    local cf
+                    if pose2.EasingStyle == "Constant" then
+                        cf = pose1.CFrame
+                    else
+                        cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
+                    end
 		            motor.C0 = self.SavedC0[motor] * cf
 		        end)
 		    end
