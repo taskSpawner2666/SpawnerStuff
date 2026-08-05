@@ -120,14 +120,15 @@ function AnimPlayer.new(charRig, anim)
 end
 
 function AnimPlayer:Play()
-    local Animate = self.Character:FindFirstChild('Animate')
-    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
-    if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
-	if self.IsPlaying then return end
+    if self.IsPlaying then return end
 	self:RestoreMotors()
 	self.IsPlaying = true
 	self.CurrentKeyframe = 1
 	self.TimePosition = 0
+	
+	local Animate = self.Character:FindFirstChild('Animate')
+    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
+    if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
 
 	self.Connection = Services.RunService.Heartbeat:Connect(function(dt)
 		if not self.IsPlaying then return end
