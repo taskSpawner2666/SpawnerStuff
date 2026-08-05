@@ -18,6 +18,31 @@ local R6Map = {
 	['Left Leg'] = 'Left Hip';
 }
 
+local __EasingStyles__ = Enum.EasingStyle
+local __EasingDirections__ = Enum.EasingDirection
+local __Enum__PoseEasingStyle__ = #'Enum.PoseEasingStyle.'
+local __Enum__PoseEasingDirection__ = #'Enum.PoseEasingDirection.'
+
+local function EasingStyleFix(style)
+	local name = string.sub(tostring(style), __Enum__PoseEasingStyle__ + 1)
+	return (function()
+	    local suc, res = pcall(function()
+	        return __EasingStyles__[name]
+	    end)
+	
+	    if not suc then
+	        return Enum.EasingStyle.Linear
+	    else
+		    return res
+	    end
+	end)()
+end
+
+local function EasingDirectionFix(dir)
+	local name = string.sub(tostring(dir), __Enum__PoseEasingDirection__ + 1)
+	return __EasingDirections__[name] or Enum.EasingDirection.In
+end
+
 local function FindMotor(poseName, map, lower)
 	local match = R6Map[poseName] or poseName
 	return map[match] or lower[string.lower(match)]
@@ -48,10 +73,18 @@ local function ConvertToTable(kfs)
 
 	local seq = {}
 	for _, frame in ipairs(kfs:GetKeyframes()) do
-		local entry = { Time = frame.Time, Data = {} }
+		local entry = {
+		    Time = frame.Time,
+		    Data = {}
+		}
 		for _, pose in ipairs(frame:GetDescendants()) do
 			if pose:IsA('Pose') and pose.Weight > 0 then
-				entry.Data[pose.Name] = { CFrame = pose.CFrame }
+				entry.Data[pose.Name] = {
+				    CFrame = pose.CFrame;
+				    EasingStyle = EasingStyleFix(pose.EasingStyle);
+				    EasingDirection = EasingDirectionFix(pose.EasingDirection);
+				    Weight = pose.Weight;
+				}
 			end
 		end
 		table.insert(seq, entry)
@@ -62,9 +95,9 @@ end
 
 local function ReadPose(pose, data)
     data[pose.Name] = {
-        CFrame = CFrame.new(unpack(pose.CFrame)),
-        EasingStyle = pose.EasingStyle,
-        EasingDirection = pose.EasingDirection,
+        CFrame = CFrame.new(unpack(pose.CFrame));
+        EasingStyle = pose.EasingStyle;
+        EasingDirection = pose.EasingDirection;
     }
 
     for _, sub in ipairs(pose.SubPoses) do
@@ -168,9 +201,9 @@ function AnimPlayer:Play()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
 		            
-		            local style = Enum.EasingStyle[pose1.EasingStyle] or Enum.EasingStyle.Linear
-		            local direction = Enum.EasingDirection[pose1.EasingDirection] or Enum.EasingDirection.In
-		            local easedAlpha = TweenService:GetValue(
+		            local style = pose1.EasingStyle
+		            local direction = pose1.EasingDirection
+		            local easedAlpha = Services.TweenService:GetValue(
 		                alpha,
 		                style,
 		                direction
