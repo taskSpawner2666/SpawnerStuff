@@ -126,8 +126,8 @@ function AnimPlayer.new(charRig, anim)
     self.Stopped = Signal.new()
     self.KeyframeReached = Signal.new()
     self.DidLoop = Signal.new()
-    self.Sequence = {}
-    self.Looped = false
+    self.Sequence = nil
+    self.Looped = nil
     if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
         self.Sequence, self.Looped = ConvertToTable(anim)
     elseif typeof(anim) == 'table' then
