@@ -127,11 +127,9 @@ function AnimPlayer:Play()
 				self.TimePosition -= self.Length
 				self.CurrentKeyframe = 1
 				self.DidLoop:Fire()
-				print("LOOP!")
 			else
 				self:Stop()
 				self:RestoreMotors()
-				print("STOP!")
 				return
 			end
 		end
@@ -183,6 +181,12 @@ function AnimPlayer:RestoreMotors()
 		pcall(function() motor.C0 = origC0 end)
 	end
 end
+
+local Humanoid = self.Character:FindFirstChild("Humanoid")
+Humanoid.Died:Connect(function()
+    self:Stop()
+    self:RestoreMotors()
+end)
 
 pcall(function()
     Services.StarterGui:SetCore("SendNotification", {
