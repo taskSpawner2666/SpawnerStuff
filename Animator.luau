@@ -98,15 +98,15 @@ function AnimPlayer.new(charRig, anim)
         self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped or false
     end
     self.Character = charRig
-    self.Motors, self.LowerMap = BuildMotorMap(charRig)
+    self.Motors, self.LowerMap = BuildMotorMap(self.Character)
     self.Speed, self.Length = 1, self.Sequence[#self.Sequence].Time
     self.TimePosition, self.CurrentKeyframe = 0, 1
     self.IsPlaying = false
     self.SavedC0 = {}
     
-    local Humanoid = charRig:FindFirstChild('Humanoid')
-    if Humanoid then
-        self.diedConnection = Humanoid.Died:Connect(function()
+    local self.Humanoid = self.Character:FindFirstChild('Humanoid')
+    if self.Humanoid then
+        self.diedConnection = self.Humanoid.Died:Connect(function()
             self:Stop()
             self:RestoreMotors()
         end)
