@@ -101,6 +101,7 @@ function AnimPlayer.new(charRig, anim)
     self.Motors, self.LowerMap = BuildMotorMap(charRig)
     self.Speed, self.Length = 1, self.Sequence[#self.Sequence].Time
     self.TimePosition, self.CurrentKeyframe = 0, 1
+    self.Weight, self.TargetWeight = 0, 1
     self.IsPlaying = false
     self.SavedC0 = {}
     
@@ -164,9 +165,10 @@ function AnimPlayer:Play()
 		        pcall(function()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
+		            self.Weight += (self.TargetWeight - self.Weight) * alpha
 		            
 		            local cf = pose1.CFrame:Lerp(pose2.CFrame, alpha)
-		            motor.C0 = self.SavedC0[motor] * cf
+		            motor.C0 = self.SavedC0[motor] * CFrame.new():Lerp(cf, self.Weight)
 		        end)
 		    end
 		end
