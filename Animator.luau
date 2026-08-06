@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator v1.5'
+AnimPlayer.ClassName = 'Animator v2.0'
 
 local Services = {
     Players = game:GetService('Players');
@@ -126,8 +126,8 @@ function AnimPlayer.new(charRig, anim)
     self.Stopped = Signal.new()
     self.KeyframeReached = Signal.new()
     self.DidLoop = Signal.new()
-    self.Sequence = nil
-    self.Looped = nil
+    self.Sequence = {}
+    self.Looped = false
     if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
         self.Sequence, self.Looped = ConvertToTable(anim)
     elseif typeof(anim) == 'table' then
@@ -139,6 +139,9 @@ function AnimPlayer.new(charRig, anim)
     self.TimePosition, self.CurrentKeyframe = 0, 1
     self.IsPlaying = false
     self.SavedC0 = {}
+    for _, m in pairs(self.Motors) do
+		self.SavedC0[m] = m.C0
+    end
     
     local humanoid = charRig:FindFirstChild('Humanoid')
     if humanoid then
@@ -146,10 +149,6 @@ function AnimPlayer.new(charRig, anim)
             self:Stop()
             self:RestoreMotors()
         end)
-    end
-    
-    for _, m in pairs(self.Motors) do
-		self.SavedC0[m] = m.C0
     end
     
     return self
@@ -183,6 +182,7 @@ function AnimPlayer:Play()
 
 		while self.CurrentKeyframe < #self.Sequence and self.TimePosition >= self.Sequence[self.CurrentKeyframe + 1].Time do
 		    self.CurrentKeyframe += 1
+		    self.KeyframeReached:Fire()
 		end
 		
 		local currentFrame = self.Sequence[self.CurrentKeyframe]
@@ -255,16 +255,15 @@ end
 local Character = Services.Players.LocalPlayer.Character
 local Humanoid = Character['Humanoid']
 local RootPart = Character['HumanoidRootPart']
-local Head = Character:FindFirstChild('Head')
-
-Services.RunService.RenderStepped:Connect(function(dt: number)
-    local function Alpha(n)
-        return math.clamp(n * dt * 60, 0, 1)
-    end
-	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
-end)
+local Head = Character['Head']
 
 pcall(function()
+    Services.RunService.RenderStepped:Connect(function(dt: number)
+        local function Alpha(n)
+            return math.clamp(n * dt * 60, 0, 1)
+        end
+    	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
+    end)
     Services.StarterGui:SetCore('SendNotification', {
         Title = 'API Animator',
         Text = 'TaskSpawner API Loaded',
