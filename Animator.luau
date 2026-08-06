@@ -197,29 +197,25 @@ function AnimPlayer:Play()
 		for jointName in pairs(currentFrame.Data) do
 		    local motor = FindMotor(jointName, self.Motors, self.LowerMap)
 		    if motor and self.SavedC0[motor] then
-		        pcall(function()
-		            local pose1 = currentFrame.Data[jointName]
-		            local pose2 = nextFrame.Data[jointName] or pose1
+		        local pose1 = currentFrame.Data[jointName]
+		        local pose2 = nextFrame.Data[jointName] or pose1
 		            
-		            local style = pose1.EasingStyle
-		            local direction = pose1.EasingDirection
-		            if pose2.EasingStyle == Enum.EasingStyle.Constant then
-		                if alpha < 1 then
-		                    motor.C0 = self.SavedC0[motor] * pose1.CFrame
-		                else
-		                    motor.C0 = self.SavedC0[motor] * pose2.CFrame
-		                end
-		            else
-		                local easedAlpha = Services.TweenService:GetValue(
-		                    alpha,
-		                    pose2.EasingStyle,
-		                    pose2.EasingDirection
-		                )
-		                
-		                local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
-		                motor.C0 = self.SavedC0[motor] * cf
-		            end
-		        end)
+                if pose2.EasingStyle == Enum.EasingStyle.Constant then
+                    if alpha < 1 then
+                        motor.C0 = self.SavedC0[motor] * pose1.CFrame
+                    else
+	                    motor.C0 = self.SavedC0[motor] * pose2.CFrame
+	                end
+	            else
+                    local easedAlpha = Services.TweenService:GetValue(
+                        alpha,
+                        pose2.EasingStyle,
+                        pose2.EasingDirection
+                    )
+                    
+                    local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
+                    motor.C0 = self.SavedC0[motor] * cf
+                end
 		    end
 		end
 	end)
