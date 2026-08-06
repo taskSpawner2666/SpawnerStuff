@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator v1.8'
+AnimPlayer.ClassName = 'Animator v1.5'
 
 local Services = {
     Players = game:GetService('Players');
@@ -17,6 +17,31 @@ local R6Map = {
 	['Right Leg'] = 'Right Hip';
 	['Left Leg'] = 'Left Hip';
 }
+
+local __EasingStyles__ = Enum.EasingStyle
+local __EasingDirections__ = Enum.EasingDirection
+local __Enum__PoseEasingStyle__ = #'Enum.PoseEasingStyle.'
+local __Enum__PoseEasingDirection__ = #'Enum.PoseEasingDirection.'
+
+local function EasingStyleFix(style)
+	local name = string.sub(tostring(style), __Enum__PoseEasingStyle__ + 1)
+	return (function()
+	    local suc, res = pcall(function()
+	        return __EasingStyles__[name]
+	    end)
+	
+	    if not suc then
+	        return Enum.EasingStyle.Linear
+	    else
+		    return res
+	    end
+	end)()
+end
+
+local function EasingDirectionFix(dir)
+	local name = string.sub(tostring(dir), __Enum__PoseEasingDirection__ + 1)
+	return __EasingDirections__[name] or Enum.EasingDirection.In
+end
 
 local function FindMotor(poseName, map, lower)
 	local match = R6Map[poseName] or poseName
@@ -48,10 +73,18 @@ local function ConvertToTable(kfs)
 
 	local seq = {}
 	for _, frame in ipairs(kfs:GetKeyframes()) do
-		local entry = { Time = frame.Time, Data = {} }
+		local entry = {
+		    Time = frame.Time,
+		    Data = {}
+		}
 		for _, pose in ipairs(frame:GetDescendants()) do
 			if pose:IsA('Pose') and pose.Weight > 0 then
-				entry.Data[pose.Name] = { CFrame = pose.CFrame }
+				entry.Data[pose.Name] = {
+				    CFrame = pose.CFrame;
+				    EasingStyle = EasingStyleFix(pose.EasingStyle);
+				    EasingDirection = EasingDirectionFix(pose.EasingDirection);
+				    Weight = pose.Weight;
+				}
 			end
 		end
 		table.insert(seq, entry)
@@ -62,8 +95,11 @@ end
 
 local function ReadPose(pose, data)
     data[pose.Name] = {
-        CFrame = CFrame.new(unpack(pose.CFrame))
+        CFrame = CFrame.new(unpack(pose.CFrame));
+        EasingStyle = pose.EasingStyle;
+        EasingDirection = pose.EasingDirection;
     }
+
     for _, sub in ipairs(pose.SubPoses) do
         ReadPose(sub, data)
     end
@@ -90,8 +126,8 @@ function AnimPlayer.new(charRig, anim)
     self.Stopped = Signal.new()
     self.KeyframeReached = Signal.new()
     self.DidLoop = Signal.new()
-    self.Sequence = {}
-    self.Looped = false
+    self.Sequence = nil
+    self.Looped = nil
     if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
         self.Sequence, self.Looped = ConvertToTable(anim)
     elseif typeof(anim) == 'table' then
@@ -123,13 +159,13 @@ function AnimPlayer:Play()
     local Animate = self.Character:FindFirstChild('Animate')
     local Animator = self.Character.Humanoid:FindFirstChild('Animator')
     if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
-
+    
     if self.IsPlaying then return end
 	self:RestoreMotors()
 	self.IsPlaying = true
 	self.CurrentKeyframe = 1
 	self.TimePosition = 0
-	
+
 	self.Connection = Services.RunService.Heartbeat:Connect(function(dt)
 		if not self.IsPlaying then return end
 		self.TimePosition += dt * self.Speed
@@ -147,7 +183,6 @@ function AnimPlayer:Play()
 
 		while self.CurrentKeyframe < #self.Sequence and self.TimePosition >= self.Sequence[self.CurrentKeyframe + 1].Time do
 		    self.CurrentKeyframe += 1
-		    self.KeyframeReached:Fire()
 		end
 		
 		local currentFrame = self.Sequence[self.CurrentKeyframe]
@@ -166,8 +201,24 @@ function AnimPlayer:Play()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
 		            
-		            local cf = pose1.CFrame:Lerp(pose2.CFrame, alpha)
-		            motor.C0 = self.SavedC0[motor] * cf
+		            local style = pose1.EasingStyle
+		            local direction = pose1.EasingDirection
+		            if pose2.EasingStyle == Enum.EasingStyle.Constant then
+		                if alpha < 1 then
+		                    motor.C0 = self.SavedC0[motor] * pose1.CFrame
+		                else
+		                    motor.C0 = self.SavedC0[motor] * pose2.CFrame
+		                end
+		            else
+		                local easedAlpha = Services.TweenService:GetValue(
+		                    alpha,
+		                    pose2.EasingStyle,
+		                    pose2.EasingDirection
+		                )
+		                
+		                local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
+		                motor.C0 = self.SavedC0[motor] * cf
+		            end
 		        end)
 		    end
 		end
@@ -208,15 +259,16 @@ end
 local Character = Services.Players.LocalPlayer.Character
 local Humanoid = Character['Humanoid']
 local RootPart = Character['HumanoidRootPart']
-local Head = Character['Head']
+local Head = Character:FindFirstChild('Head')
+
+Services.RunService.RenderStepped:Connect(function(dt: number)
+    local function Alpha(n)
+        return math.clamp(n * dt * 60, 0, 1)
+    end
+	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
+end)
 
 pcall(function()
-    Services.RunService.RenderStepped:Connect(function(dt: number)
-        local function Alpha(n)
-            return math.clamp(n * dt * 60, 0, 1)
-        end
-        Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
-	
     Services.StarterGui:SetCore('SendNotification', {
         Title = 'API Animator',
         Text = 'TaskSpawner API Loaded',
