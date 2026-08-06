@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator v2.0'
+AnimPlayer.ClassName = 'API Animator v2.1'
 
 local Services = {
     Players = game:GetService('Players');
@@ -182,7 +182,7 @@ function AnimPlayer:Play()
 
 		while self.CurrentKeyframe < #self.Sequence and self.TimePosition >= self.Sequence[self.CurrentKeyframe + 1].Time do
 		    self.CurrentKeyframe += 1
-		    self.KeyframeReached:Fire()
+		    self.KeyframeReached:Fire(self.CurrentKeyframe, self.TimePosition)
 		end
 		
 		local currentFrame = self.Sequence[self.CurrentKeyframe]
@@ -197,24 +197,26 @@ function AnimPlayer:Play()
 		for jointName in pairs(currentFrame.Data) do
 		    local motor = FindMotor(jointName, self.Motors, self.LowerMap)
 		    if motor and self.SavedC0[motor] then
-		        local pose1 = currentFrame.Data[jointName]
-		        local pose2 = nextFrame.Data[jointName] or pose1
+		        pcall(function()
+		            local pose1 = currentFrame.Data[jointName]
+		            local pose2 = nextFrame.Data[jointName] or pose1
 		            
-                if pose2.EasingStyle == "Constant" then
-                    if alpha < 1 then
-                        motor.C0 = self.SavedC0[motor] * pose1.CFrame
-                    else
-	                    motor.C0 = self.SavedC0[motor] * pose2.CFrame
-	                end
-	            else
-                    local easedAlpha = Services.TweenService:GetValue(
-                        alpha,
-                        pose2.EasingStyle,
-                        pose2.EasingDirection
-                    )
+		            if pose2.EasingStyle == "Constant" then
+		                if alpha < 1 then
+		                    motor.C0 = self.SavedC0[motor] * pose1.CFrame
+                        else
+                            motor.C0 = self.SavedC0[motor] * pose2.CFrame
+	                    end
+	                else
+                        local easedAlpha = Services.TweenService:GetValue(
+                            alpha,
+                            pose2.EasingStyle,
+                            pose2.EasingDirection
+                        )
                     
-                    local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
-                    motor.C0 = self.SavedC0[motor] * cf
+                        local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
+                        motor.C0 = self.SavedC0[motor] * cf
+                    end)
                 end
 		    end
 		end
@@ -270,6 +272,6 @@ pcall(function()
         Button1 = 'Ok!'
     })
 end)
-    warn(AnimPlayer.ClassName)
+    warn(AnimPlayer.ClassName.. " Loaded.")
 
 return AnimPlayer;
