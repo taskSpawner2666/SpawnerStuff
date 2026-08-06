@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator v1.5'
+AnimPlayer.ClassName = 'Animator v1.8'
 
 local Services = {
     Players = game:GetService('Players');
@@ -101,7 +101,6 @@ function AnimPlayer.new(charRig, anim)
     self.Motors, self.LowerMap = BuildMotorMap(charRig)
     self.Speed, self.Length = 1, self.Sequence[#self.Sequence].Time
     self.TimePosition, self.CurrentKeyframe = 0, 1
-    self.Weight, self.TargetWeight = 0, 1
     self.IsPlaying = false
     self.SavedC0 = {}
     
@@ -148,6 +147,7 @@ function AnimPlayer:Play()
 
 		while self.CurrentKeyframe < #self.Sequence and self.TimePosition >= self.Sequence[self.CurrentKeyframe + 1].Time do
 		    self.CurrentKeyframe += 1
+		    self.KeyframeReached:Fire()
 		end
 		
 		local currentFrame = self.Sequence[self.CurrentKeyframe]
@@ -165,10 +165,9 @@ function AnimPlayer:Play()
 		        pcall(function()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
-		            self.Weight += (self.TargetWeight - self.Weight) * alpha
 		            
 		            local cf = pose1.CFrame:Lerp(pose2.CFrame, alpha)
-		            motor.C0 = self.SavedC0[motor] * CFrame.new():Lerp(cf, self.Weight)
+		            motor.C0 = self.SavedC0[motor] * cf
 		        end)
 		    end
 		end
@@ -209,16 +208,15 @@ end
 local Character = Services.Players.LocalPlayer.Character
 local Humanoid = Character['Humanoid']
 local RootPart = Character['HumanoidRootPart']
-local Head = Character:FindFirstChild('Head')
-
-Services.RunService.RenderStepped:Connect(function(dt: number)
-    local function Alpha(n)
-        return math.clamp(n * dt * 60, 0, 1)
-    end
-	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
-end)
+local Head = Character['Head']
 
 pcall(function()
+    Services.RunService.RenderStepped:Connect(function(dt: number)
+        local function Alpha(n)
+            return math.clamp(n * dt * 60, 0, 1)
+        end
+        Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
+	
     Services.StarterGui:SetCore('SendNotification', {
         Title = 'API Animator',
         Text = 'TaskSpawner API Loaded',
