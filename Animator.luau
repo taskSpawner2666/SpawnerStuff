@@ -200,7 +200,7 @@ function AnimPlayer:Play()
 		        local pose1 = currentFrame.Data[jointName]
 		        local pose2 = nextFrame.Data[jointName] or pose1
 		            
-                if pose2.EasingStyle == Enum.EasingStyle.Constant then
+                if pose2.EasingStyle == "Constant" then
                     if alpha < 1 then
                         motor.C0 = self.SavedC0[motor] * pose1.CFrame
                     else
