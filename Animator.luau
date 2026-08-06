@@ -216,8 +216,8 @@ function AnimPlayer:Play()
                     
                         local cf = pose1.CFrame:Lerp(pose2.CFrame, easedAlpha)
                         motor.C0 = self.SavedC0[motor] * cf
-                    end)
-                end
+                    end
+                end)
 		    end
 		end
 	end)
