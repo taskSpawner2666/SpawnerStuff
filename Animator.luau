@@ -122,31 +122,37 @@ local function ConvertAnimationTable(animTable)
 end
 
 local function disableDefaultAnims(self)
-    local Animate = self.Character:FindFirstChild('Animate')
-    if not Animate then return end
-    
-    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
-    if not Animator then return end
-    
-    for _,track in ipairs(Animator:GetPlayingAnimationTracks()) do
-        track:Stop()
-    end
-    
-    Animate.Disabled = true
-    Animator:Destroy()
+    if self.Character then
+		local AnimateScript = self.Character:FindFirstChild("Animate")
+		if AnimateScript then
+			AnimateScript.Disabled = true
+		end
+		if self.Character.Humanoid then
+			local characterAnimator = Humanoid:FindFirstChild("Animator")
+			if characterAnimator then
+				do
+					local animationTrack = characterAnimator:GetPlayingAnimationTracks()
+					for i = 1, #animationTrack do
+						animationTrack[i]:Stop()
+					end
+				end
+				characterAnimator:Destroy()
+			end
+		end
+	end
 end
 
 local function enableDefaultAnims(self)
-    local Animate = self.Character:FindFirstChild('Animate')
-    if not Animate then return end
-    
-    local Humanoid = self.Character:FindFirstChild('Humanoid')
-    if not Humanoid then return end
-    
-    local Animator = Humanoid:FindFirstChild('Animator')
-    if not Animator then Instance.new('Animator', Humanoid) Animate.Enabled = true end
-    
-    Animate.Enabled = true
+    if self.Character and self.handleVanillaAnimator then
+		local Humanoid = self.Character:FindFirstChild("Humanoid")
+		if Humanoid and not Humanoid:FindFirstChildOfClass("Animator") then
+			Instance.new("Animator").Parent = Humanoid
+		end
+		local AnimateScript = self.Character:FindFirstChild("Animate")
+		if AnimateScript and AnimateScript.Disabled then
+			AnimateScript.Disabled = false
+		end
+	end
 end
 
 function AnimPlayer.new(charRig, anim)
@@ -183,11 +189,9 @@ function AnimPlayer.new(charRig, anim)
 end
 
 function AnimPlayer:Play()
-    disableDefaultAnims(self)
-    
     if self.IsPlaying then return end
-	self:RestoreMotors()
 	self.IsPlaying = true
+	disableDefaultAnims(self)
 	self.CurrentKeyframe = 1
 	self.TimePosition = 0
 
@@ -250,10 +254,9 @@ function AnimPlayer:Play()
 end
 
 function AnimPlayer:Stop()
-    enableDefaultAnims(self)
-    
     if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
+    enableDefaultAnims(self)
     
     if self.Connection then
         self.Connection:Disconnect()
