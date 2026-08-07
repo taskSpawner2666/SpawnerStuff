@@ -123,12 +123,12 @@ end
 
 local function disableDefaultAnims(self)
     if self.Character then
-		local AnimateScript = self.Character:FindFirstChild("Animate")
+		local AnimateScript = self.Character:FindFirstChild('Animate')
 		if AnimateScript then
 			AnimateScript.Disabled = true
 		end
 		if self.Character.Humanoid then
-			local characterAnimator = Humanoid:FindFirstChild("Animator")
+			local characterAnimator = self.Character.Humanoid:FindFirstChild('Animator')
 			if characterAnimator then
 				do
 					local animationTrack = characterAnimator:GetPlayingAnimationTracks()
@@ -144,11 +144,11 @@ end
 
 local function enableDefaultAnims(self)
     if self.Character and self.handleVanillaAnimator then
-		local Humanoid = self.Character:FindFirstChild("Humanoid")
-		if Humanoid and not Humanoid:FindFirstChildOfClass("Animator") then
-			Instance.new("Animator").Parent = Humanoid
+		local Humanoid = self.Character:FindFirstChild('Humanoid')
+		if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
+			Instance.new('Animator').Parent = Humanoid
 		end
-		local AnimateScript = self.Character:FindFirstChild("Animate")
+		local AnimateScript = self.Character:FindFirstChild('Animate')
 		if AnimateScript and AnimateScript.Disabled then
 			AnimateScript.Disabled = false
 		end
@@ -231,7 +231,7 @@ function AnimPlayer:Play()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
 		            
-		            if pose2.EasingStyle == "Constant" then
+		            if pose2.EasingStyle == 'Constant' then
 		                if alpha < 1 then
 		                    motor.C0 = self.SavedC0[motor] * pose1.CFrame
                         else
@@ -295,6 +295,6 @@ pcall(function()
         Button1 = 'Ok!'
     })
 end)
-    warn(AnimPlayer.ClassName.. " Loaded.")
+    warn(AnimPlayer.ClassName.. ' Loaded.')
 
 return AnimPlayer;
