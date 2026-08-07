@@ -121,6 +121,37 @@ local function ConvertAnimationTable(animTable)
     return seq
 end
 
+local function disableDefaultAnimations(self)
+    local Animate = self.Character:FindFirstChild('Animate')
+    if not Animate then return end
+    
+    local Humanoid = self.Character:FindFirstChild('Humanoid')
+    if not Humanoid then return end
+    
+    local Animator = Humanoid:FindFirstChild('Animator')
+    if not Animator then return end
+        
+    for _,v in ipairs(Animator:GetPlayingAnimationTracks()) do
+        v:Stop()
+    end
+    
+    Animate.Disabled = true
+    Animator:Destroy()
+end
+
+local function enableDefaultAnimations(self)
+    local Animate = self.Character:FindFirstChild('Animate')
+    if not Animate then return end
+    
+    local Humanoid = self.Character:FindFirstChild('Humanoid')
+    if not Humanoid then return end
+    
+    local Animator = Humanoid:FindFirstChild('Animator')
+    if not Animator then Instance.new('Animator', Humanoid) end
+    
+    Animate.Enabled = true
+end
+
 function AnimPlayer.new(charRig, anim)
     local self = setmetatable({}, AnimPlayer)
     self.Stopped = Signal.new()
@@ -156,9 +187,7 @@ end
 
 function AnimPlayer:Play()
     if self.IsPlaying then return end
-    local Animate = self.Character:FindFirstChild('Animate')
-    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
-    if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
+    disableDefaultAnimations(self)
 	self:RestoreMotors()
 	for _,motor in pairs(self.Motors) do
 	    motor.Transform = CFrame.identity
@@ -240,13 +269,7 @@ function AnimPlayer:Stop()
         self.diedConnection = nil
     end
     
-    local Animate = self.Character:FindFirstChild('Animate')
-    if Animate then Animate.Enabled = true end
-    
-    local Humanoid = self.Character:FindFirstChild('Humanoid')
-    if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
-        local Animator = Instance.new('Animator', Humanoid)
-    end
+    enableDefaultAnimations(self)
     
     self.Stopped:Fire()
 end
