@@ -121,42 +121,6 @@ local function ConvertAnimationTable(animTable)
     return seq
 end
 
-local function disableDefaultAnims(self)
-    local Humanoid = self.Character:FindFirstChild('Humanoid')
-    
-    if self.Character then
-		local AnimateScript = self.Character:FindFirstChild('Animate')
-		if AnimateScript then
-			AnimateScript.Disabled = true
-		end
-		if Humanoid then
-			local characterAnimator = Humanoid:FindFirstChild('Animator')
-			if characterAnimator then
-				do
-					local animationTrack = characterAnimator:GetPlayingAnimationTracks()
-					for i = 1, #animationTrack do
-						animationTrack[i]:Stop()
-					end
-				end
-				characterAnimator:Destroy()
-			end
-		end
-	end
-end
-
-local function enableDefaultAnims(self)
-    if self.Character then
-		local Humanoid = self.Character:FindFirstChild('Humanoid')
-		if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
-			Instance.new('Animator').Parent = Humanoid
-		end
-		local AnimateScript = self.Character:FindFirstChild('Animate')
-		if AnimateScript and AnimateScript.Disabled then
-			AnimateScript.Disabled = false
-		end
-	end
-end
-
 function AnimPlayer.new(charRig, anim)
     local self = setmetatable({}, AnimPlayer)
     self.Stopped = Signal.new()
@@ -192,8 +156,15 @@ end
 
 function AnimPlayer:Play()
     if self.IsPlaying then return end
+    local Animate = self.Character:FindFirstChild('Animate')
+    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
+    if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
+	self:RestoreMotors()
+	for _,motor in pairs(self.Motors) do
+	    motor.Transform = CFrame.identity
+	end
+	
 	self.IsPlaying = true
-	disableDefaultAnims(self)
 	self.CurrentKeyframe = 1
 	self.TimePosition = 0
 
@@ -233,7 +204,7 @@ function AnimPlayer:Play()
 		            local pose1 = currentFrame.Data[jointName]
 		            local pose2 = nextFrame.Data[jointName] or pose1
 		            
-		            if pose2.EasingStyle == 'Constant' then
+		            if pose2.EasingStyle == "Constant" then
 		                if alpha < 1 then
 		                    motor.C0 = self.SavedC0[motor] * pose1.CFrame
                         else
@@ -258,7 +229,6 @@ end
 function AnimPlayer:Stop()
     if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
-    enableDefaultAnims(self)
     
     if self.Connection then
         self.Connection:Disconnect()
@@ -268,6 +238,14 @@ function AnimPlayer:Stop()
     if self.diedConnection then
         self.diedConnection:Disconnect()
         self.diedConnection = nil
+    end
+    
+    local Animate = self.Character:FindFirstChild('Animate')
+    if Animate then Animate.Enabled = true end
+    
+    local Humanoid = self.Character:FindFirstChild('Humanoid')
+    if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
+        local Animator = Instance.new('Animator', Humanoid)
     end
     
     self.Stopped:Fire()
@@ -297,6 +275,6 @@ pcall(function()
         Button1 = 'Ok!'
     })
 end)
-    warn(AnimPlayer.ClassName.. ' Loaded.')
+    warn(AnimPlayer.ClassName.. " Loaded.")
 
 return AnimPlayer;
