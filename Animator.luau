@@ -122,13 +122,15 @@ local function ConvertAnimationTable(animTable)
 end
 
 local function disableDefaultAnims(self)
+    local Humanoid = self.Character:FindFirstChild('Humanoid')
+    
     if self.Character then
 		local AnimateScript = self.Character:FindFirstChild('Animate')
 		if AnimateScript then
 			AnimateScript.Disabled = true
 		end
-		if self.Character.Humanoid then
-			local characterAnimator = self.Character.Humanoid:FindFirstChild('Animator')
+		if Humanoid then
+			local characterAnimator = Humanoid:FindFirstChild('Animator')
 			if characterAnimator then
 				do
 					local animationTrack = characterAnimator:GetPlayingAnimationTracks()
@@ -143,7 +145,7 @@ local function disableDefaultAnims(self)
 end
 
 local function enableDefaultAnims(self)
-    if self.Character and self.handleVanillaAnimator then
+    if self.Character then
 		local Humanoid = self.Character:FindFirstChild('Humanoid')
 		if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
 			Instance.new('Animator').Parent = Humanoid
