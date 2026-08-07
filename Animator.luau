@@ -121,6 +121,34 @@ local function ConvertAnimationTable(animTable)
     return seq
 end
 
+local function disableDefaultAnims(self)
+    local Animate = self.Character:FindFirstChild('Animate')
+    if not Animate then return end
+    
+    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
+    if not Animator then return end
+    
+    for _,track in ipairs(Animator:GetPlayingAnimationTracks()) do
+        track:Stop()
+    end
+    
+    Animate.Disabled = true
+    Animator:Destroy()
+end
+
+local function enableDefaultAnims(self)
+    local Animate = self.Character:FindFirstChild('Animate')
+    if not Animate then return end
+    
+    local Humanoid = self.Character:FindFirstChild('Humanoid')
+    if not Humanoid then return end
+    
+    local Animator = Humanoid:FindFirstChild('Animator')
+    if not Animator then Instance.new('Animator', Humanoid) Animate.Enabled = true end
+    
+    Animate.Enabled = true
+end
+
 function AnimPlayer.new(charRig, anim)
     local self = setmetatable({}, AnimPlayer)
     self.Stopped = Signal.new()
@@ -155,11 +183,9 @@ function AnimPlayer.new(charRig, anim)
 end
 
 function AnimPlayer:Play()
-    local Animate = self.Character:FindFirstChild('Animate')
-    local Animator = self.Character.Humanoid:FindFirstChild('Animator')
-    if Animate and Animator then Animate.Disabled = true Animator:Destroy() end
-    
     if self.IsPlaying then return end
+    disableDefaultAnims(self)
+    
 	self:RestoreMotors()
 	self.IsPlaying = true
 	self.CurrentKeyframe = 1
@@ -237,13 +263,7 @@ function AnimPlayer:Stop()
         self.diedConnection = nil
     end
     
-    local Animate = self.Character:FindFirstChild('Animate')
-    if Animate then Animate.Enabled = true end
-    
-    local Humanoid = self.Character:FindFirstChild('Humanoid')
-    if Humanoid and not Humanoid:FindFirstChildOfClass('Animator') then
-        local Animator = Instance.new('Animator', Humanoid)
-    end
+    enableDefaultAnims(self)
     
     self.Stopped:Fire()
 end
