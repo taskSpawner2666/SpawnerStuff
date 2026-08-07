@@ -183,9 +183,9 @@ function AnimPlayer.new(charRig, anim)
 end
 
 function AnimPlayer:Play()
-    if self.IsPlaying then return end
     disableDefaultAnims(self)
     
+    if self.IsPlaying then return end
 	self:RestoreMotors()
 	self.IsPlaying = true
 	self.CurrentKeyframe = 1
@@ -250,6 +250,8 @@ function AnimPlayer:Play()
 end
 
 function AnimPlayer:Stop()
+    enableDefaultAnims(self)
+    
     if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
     
@@ -262,8 +264,6 @@ function AnimPlayer:Stop()
         self.diedConnection:Disconnect()
         self.diedConnection = nil
     end
-    
-    enableDefaultAnims(self)
     
     self.Stopped:Fire()
 end
