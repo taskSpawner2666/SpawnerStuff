@@ -130,7 +130,12 @@ local function disableDefaultAnimations(self)
     
     local Animator = Humanoid:FindFirstChild('Animator')
     if not Animator then return end
-        
+    
+    self:RestoreMotors()
+	for _,motor in pairs(self.Motors) do
+	    motor.Transform = CFrame.identity
+	end
+    
     for _,v in ipairs(Animator:GetPlayingAnimationTracks()) do
         v:Stop()
     end
@@ -188,10 +193,6 @@ end
 function AnimPlayer:Play()
     if self.IsPlaying then return end
     disableDefaultAnimations(self)
-	self:RestoreMotors()
-	for _,motor in pairs(self.Motors) do
-	    motor.Transform = CFrame.identity
-	end
 	
 	self.IsPlaying = true
 	self.CurrentKeyframe = 1
