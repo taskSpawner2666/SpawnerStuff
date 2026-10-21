@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator API v3.0'
+AnimPlayer.ClassName = 'Animator API v3.3'
 
 local Services = {
     Players = game:GetService('Players');
@@ -123,7 +123,13 @@ end
 
 local function RestoreMotors(self)
 	for motor, origC0 in pairs(self.SavedC0) do
-		pcall(function() motor.C0 = origC0 end)
+		motor.C0 = origC0
+	end
+end
+
+local function TransformIdentity(self)
+	for _,motor in pairs(self.Motors) do
+		motor.Transform = CFrame.identity
 	end
 end
 
@@ -137,10 +143,8 @@ local function disableDefaultAnimations(self)
     local Animator = Humanoid:FindFirstChild('Animator')
     if not Animator then return end
     
+    TransformIdentity(self)
     self:Stop()
-	for _,motor in pairs(self.Motors) do
-	    motor.Transform = CFrame.identity
-	end
     
     for _,v in ipairs(Animator:GetPlayingAnimationTracks()) do
         v:Stop()
@@ -267,7 +271,10 @@ function AnimPlayer:Stop(restore)
 	if restore == nil then restore = true
 	elseif typeof(restore) ~= 'boolean' then error('[ERROR]: Invalid parameter inserted.') end
 	
+    if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
+    
+    TransformIdentity(self)
     
     if self.Connection then
         self.Connection:Disconnect()
