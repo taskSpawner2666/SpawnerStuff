@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'API Animator v2.1'
+AnimPlayer.ClassName = 'Animator API v2.4'
 
 local Services = {
     Players = game:GetService('Players');
