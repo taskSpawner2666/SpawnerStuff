@@ -123,7 +123,7 @@ end
 
 local function RestoreMotors(self)
 	for motor, origC0 in pairs(self.SavedC0) do
-		motor.C0 = origC0
+		pcall(function() motor.C0 = origC0 end)
 	end
 end
 
@@ -267,7 +267,6 @@ function AnimPlayer:Stop(restore)
 	if restore == nil then restore = true
 	elseif typeof(restore) ~= 'boolean' then error('[ERROR]: Invalid parameter inserted.') end
 	
-    if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
     
     if self.Connection then
