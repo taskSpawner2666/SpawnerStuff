@@ -260,7 +260,9 @@ function AnimPlayer:Play()
 	end)
 end
 
-function AnimPlayer:Stop(restore=true)
+function AnimPlayer:Stop(restore)
+	if restore == nil then restore = true end
+	
     if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
     
@@ -274,9 +276,9 @@ function AnimPlayer:Stop(restore=true)
         self.diedConnection = nil
     end
     
-    if restore == false then
+    if restore == true then
     	RestoreMotors()
-    elseif restore == true then
+    elseif restore == false then
     	return
     else
     	error('[ERROR]: Invalid parameter inserted.')
