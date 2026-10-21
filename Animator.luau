@@ -121,7 +121,7 @@ local function ConvertAnimationTable(animTable)
     return seq
 end
 
-local function RestoreMotors()
+local function RestoreMotors(self)
 	for m, C0 in pairs(self.SavedC0) do
 		pcall(function() m.C0 = c0 end)
 	end
@@ -277,7 +277,7 @@ function AnimPlayer:Stop(restore)
     end
     
     if restore == true then
-    	RestoreMotors()
+    	RestoreMotors(self)
     elseif restore == false then
     	return
     else
@@ -310,3 +310,4 @@ end)
     warn(AnimPlayer.ClassName.. " Loaded.")
 
 return AnimPlayer;
+i
