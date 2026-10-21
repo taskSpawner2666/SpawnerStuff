@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator API v2.95'
+AnimPlayer.ClassName = 'Animator API v3.0'
 
 local Services = {
     Players = game:GetService('Players');
@@ -122,8 +122,8 @@ local function ConvertAnimationTable(animTable)
 end
 
 local function RestoreMotors(self)
-	for m, C0 in pairs(self.SavedC0) do
-		pcall(function() m.C0 = c0 end)
+	for motor, origC0 in pairs(self.SavedC0) do
+		motor.C0 = origC0
 	end
 end
 
@@ -137,7 +137,7 @@ local function disableDefaultAnimations(self)
     local Animator = Humanoid:FindFirstChild('Animator')
     if not Animator then return end
     
-    self:Stop(true)
+    self:Stop()
 	for _,motor in pairs(self.Motors) do
 	    motor.Transform = CFrame.identity
 	end
@@ -170,16 +170,19 @@ function AnimPlayer.new(charRig, anim)
     self.DidLoop = Signal.new()
     self.Sequence = {}
     self.Looped = false
+    
     if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
         self.Sequence, self.Looped = ConvertToTable(anim)
     elseif typeof(anim) == 'table' then
         self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped or false
     end
+    
     self.Character = charRig
     self.Motors, self.LowerMap = BuildMotorMap(charRig)
     self.Speed, self.Length = 1, self.Sequence[#self.Sequence].Time
     self.TimePosition, self.CurrentKeyframe = 0, 1
     self.IsPlaying = false
+    
     self.SavedC0 = {}
     for _, m in pairs(self.Motors) do
 		self.SavedC0[m] = m.C0
@@ -188,7 +191,7 @@ function AnimPlayer.new(charRig, anim)
     local humanoid = charRig:FindFirstChild('Humanoid')
     if humanoid then
         self.diedConnection = humanoid.Died:Connect(function()
-            self:Stop(true)
+            self:Stop()
         end)
     end
     
@@ -212,7 +215,7 @@ function AnimPlayer:Play()
 				self.CurrentKeyframe = 1
 				self.DidLoop:Fire()
 			else
-				self:Stop(true)
+				self:Stop()
 				return
 			end
 		end
@@ -261,7 +264,8 @@ function AnimPlayer:Play()
 end
 
 function AnimPlayer:Stop(restore)
-	if restore == nil then restore = true end
+	if restore == nil then restore = true
+	elseif typeof(restore) ~= 'boolean' then error('[ERROR]: Invalid parameter inserted.') end
 	
     if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
@@ -278,10 +282,6 @@ function AnimPlayer:Stop(restore)
     
     if restore == true then
     	RestoreMotors(self)
-    elseif restore == false then
-    	return
-    else
-    	error('[ERROR]: Invalid parameter inserted.')
     end
     
     enableDefaultAnimations(self)
@@ -310,4 +310,3 @@ end)
     warn(AnimPlayer.ClassName.. " Loaded.")
 
 return AnimPlayer;
-i
