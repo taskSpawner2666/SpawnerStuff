@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator API v2.8'
+AnimPlayer.ClassName = 'Animator API v2.4'
 
 local Services = {
     Players = game:GetService('Players');
@@ -121,12 +121,6 @@ local function ConvertAnimationTable(animTable)
     return seq
 end
 
-local function RestoreMotors()
-	for m, C0 in pairs(self.SavedC0) do
-		pcall(function() m.C0 = c0 end)
-	end
-end
-
 local function disableDefaultAnimations(self)
     local Animate = self.Character:FindFirstChild('Animate')
     if not Animate then return end
@@ -137,7 +131,7 @@ local function disableDefaultAnimations(self)
     local Animator = Humanoid:FindFirstChild('Animator')
     if not Animator then return end
     
-    self:Stop(true)
+    self:RestoreMotors()
 	for _,motor in pairs(self.Motors) do
 	    motor.Transform = CFrame.identity
 	end
@@ -188,7 +182,8 @@ function AnimPlayer.new(charRig, anim)
     local humanoid = charRig:FindFirstChild('Humanoid')
     if humanoid then
         self.diedConnection = humanoid.Died:Connect(function()
-            self:Stop(true)
+            self:Stop()
+            self:RestoreMotors()
         end)
     end
     
@@ -212,7 +207,8 @@ function AnimPlayer:Play()
 				self.CurrentKeyframe = 1
 				self.DidLoop:Fire()
 			else
-				self:Stop(true)
+				self:Stop()
+				self:RestoreMotors()
 				return
 			end
 		end
@@ -260,7 +256,7 @@ function AnimPlayer:Play()
 	end)
 end
 
-function AnimPlayer:Stop(restore=true)
+function AnimPlayer:Stop()
     if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
     
@@ -274,17 +270,15 @@ function AnimPlayer:Stop(restore=true)
         self.diedConnection = nil
     end
     
-    if restore == false then
-    	RestoreMotors()
-    elseif restore == true then
-    	return
-    else
-    	error('[ERROR]: Invalid parameter inserted.')
-    end
-    
     enableDefaultAnimations(self)
     
     self.Stopped:Fire()
+end
+
+function AnimPlayer:RestoreMotors()
+    for motor, origC0 in pairs(self.SavedC0) do
+		pcall(function() motor.C0 = origC0 end)
+	end
 end
 
 local Character = Services.Players.LocalPlayer.Character
