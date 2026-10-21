@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator API v3.0'
+AnimPlayer.ClassName = 'Animator API v3.2'
 
 local Services = {
     Players = game:GetService('Players');
@@ -271,10 +271,7 @@ function AnimPlayer:Stop(restore)
 	if restore == nil then restore = true
 	elseif typeof(restore) ~= 'boolean' then error('[ERROR]: Invalid parameter inserted.') end
 	
-    if not self.IsPlaying then warn('Expected animation playing') end
     self.IsPlaying = false
-    
-    TransformIdentity(self)
     
     if self.Connection then
         self.Connection:Disconnect()
