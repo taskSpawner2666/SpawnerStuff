@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator API v3.3'
+AnimPlayer.ClassName = 'Animator API v3.0'
 
 local Services = {
     Players = game:GetService('Players');
@@ -143,8 +143,8 @@ local function disableDefaultAnimations(self)
     local Animator = Humanoid:FindFirstChild('Animator')
     if not Animator then return end
     
-    TransformIdentity(self)
     self:Stop()
+    TransformIdentity(self)
     
     for _,v in ipairs(Animator:GetPlayingAnimationTracks()) do
         v:Stop()
