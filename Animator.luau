@@ -192,7 +192,7 @@ function AnimPlayer.new(charRig, anim)
 		self.SavedC0[m] = m.C0
     end
     
-    local humanoid = charRig['Humanoid']
+    local humanoid = self.Character['Humanoid']
     if humanoid then
         self.diedConnection = humanoid.Died:Connect(function()
             self:Stop()
@@ -200,14 +200,14 @@ function AnimPlayer.new(charRig, anim)
     end
     
 	pcall(function()
-		local self.RootPart = charRig['HumanoidRootPart']
-		local self.Head = charRig['Head']
+		local rootPart = self.Character['HumanoidRootPart']
+		local head = self.Character['Head']
 		
     	Services.RunService.RenderStepped:Connect(function(dt: number)
         	local function Alpha(n)
             	return math.clamp(n * dt * 60, 0, 1)
         	end
-    		humanoid.CameraOffset = self.Humanoid.CameraOffset:Lerp((self.RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(self.Head.Position),Alpha(0.15))
+    		humanoid.CameraOffset = humanoid.CameraOffset:Lerp((rootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(head.Position),Alpha(0.15))
     	end)
     end)
     
