@@ -192,7 +192,7 @@ function AnimPlayer.new(charRig, anim)
 		self.SavedC0[m] = m.C0
     end
     
-    local humanoid = self.Character['Humanoid']
+    local humanoid = charRig['Humanoid']
     if humanoid then
         self.diedConnection = humanoid.Died:Connect(function()
             self:Stop()
@@ -200,8 +200,8 @@ function AnimPlayer.new(charRig, anim)
     end
     
 	pcall(function()
-		local self.RootPart = self.Character['HumanoidRootPart']
-		local self.Head = self.Character['Head']
+		local self.RootPart = charRig['HumanoidRootPart']
+		local self.Head = charRig['Head']
 		
     	Services.RunService.RenderStepped:Connect(function(dt: number)
         	local function Alpha(n)
