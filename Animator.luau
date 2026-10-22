@@ -1,6 +1,6 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
-AnimPlayer.ClassName = 'Animator API v3.2'
+AnimPlayer.ClassName = 'Animator API v3.33'
 
 local Services = {
     Players = game:GetService('Players');
@@ -192,12 +192,24 @@ function AnimPlayer.new(charRig, anim)
 		self.SavedC0[m] = m.C0
     end
     
-    local humanoid = charRig:FindFirstChild('Humanoid')
+    local humanoid = self.Character['Humanoid']
     if humanoid then
         self.diedConnection = humanoid.Died:Connect(function()
             self:Stop()
         end)
     end
+    
+	pcall(function()
+		local self.RootPart = self.Character['HumanoidRootPart']
+		local self.Head = self.Character['Head']
+		
+    	Services.RunService.RenderStepped:Connect(function(dt: number)
+        	local function Alpha(n)
+            	return math.clamp(n * dt * 60, 0, 1)
+        	end
+    		humanoid.CameraOffset = self.Humanoid.CameraOffset:Lerp((self.RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(self.Head.Position),Alpha(0.15))
+    	end)
+    end)
     
     return self
 end
@@ -298,12 +310,6 @@ local RootPart = Character['HumanoidRootPart']
 local Head = Character['Head']
 
 pcall(function()
-    Services.RunService.RenderStepped:Connect(function(dt: number)
-        local function Alpha(n)
-            return math.clamp(n * dt * 60, 0, 1)
-        end
-    	Humanoid.CameraOffset = Humanoid.CameraOffset:Lerp((RootPart.CFrame * CFrame.new(0, 1.5, 0)):PointToObjectSpace(Head.Position),Alpha(0.15))
-    end)
     Services.StarterGui:SetCore('SendNotification', {
         Title = 'API Animator',
         Text = 'TaskSpawner API Loaded',
