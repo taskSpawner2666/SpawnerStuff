@@ -83,7 +83,7 @@ local function framesToString(cTable)
 	table.insert(lines, "local Frames = {")
 
 	for i, frame in ipairs(cTable) do
-		local components = frame.CFrame:GetComponents()
+		local components = {frame.CFrame:GetComponents()}
 		for k, v in ipairs(cTable) do
 			components[k] = string.format("%.8g", v)
 		end
@@ -237,6 +237,7 @@ end
 
 AxisAPI.CutsceneLogger = function(name)
 	local defaultCamera = cam.CameraType
+	local fileName = name.. "_cutscene.luau"
 
 	cam:GetPropertyChangedSignal("CameraType"):Connect(function()
 		if cam.CameraType ~= defaultCamera then
