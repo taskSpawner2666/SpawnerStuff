@@ -39,7 +39,7 @@ local messageTable = {
 	Marker = '-- [[ Keyframes Converted: {num} ]] --'
 }
 
-local player = Players.LocalPlayer
+local player = Services.Players.LocalPlayer
 local char = player["Character"]
 local cam = workspace.CurrentCamera
 
