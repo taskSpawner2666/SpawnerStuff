@@ -63,8 +63,8 @@ AnimPlayer.__index = AnimPlayer
 AnimPlayer.ClassName = 'Animator'
 AnimPlayer.Version = 3.91
 
---local Signal = require(script:WaitForChild('LuauPureSignal'))
---local Maid = require(script:WaitForChild('LuauPureMaid'))
+local Signal = require(script:FindFirstChild('LuauPureSignal')) or loadstring(game:HttpGet("https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/LUAUTools/LuauPureSignal.luau"))()
+local Maid = require(script:FindFirstChild('LuauPureMaid')) or loadstring(game:HttpGet("https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/LUAUTools/LuauPureMaid.luau"))()
 
 local Services = {
 	Players = game:GetService('Players');
