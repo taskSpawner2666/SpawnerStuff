@@ -1,5 +1,5 @@
 local AxisAPI = {}
-AxisAPI.Version = 1.2
+AxisAPI.Version = 1.4
 
 local recording = false
 local connection = nil
