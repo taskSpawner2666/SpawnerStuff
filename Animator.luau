@@ -67,7 +67,7 @@ if not Signal then
 	local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/LUAUTools/LuauPureSignal.luau"))() or require(script:FindFirstChild('LuauPureSignal'))
 end
 if not Maid then
-	local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/LUAUTools/LuauPureMaid.luau"))() or require(script:FindFirstChild('LuauPureMaid'))
+	local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/taskSpawner2666/LuauTools/refs/heads/main/LuauPureMaid.luau"))() or require(script:FindFirstChild('LuauPureMaid'))
 end
 
 local Services = {
