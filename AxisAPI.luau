@@ -84,7 +84,7 @@ local function framesToString(cTable)
 
 	for i, frame in ipairs(cTable) do
 		local components = {frame.CFrame:GetComponents()}
-		for k, v in ipairs(cTable) do
+		for k, v in ipairs(components) do
 			components[k] = string.format("%.8g", v)
 		end
 
