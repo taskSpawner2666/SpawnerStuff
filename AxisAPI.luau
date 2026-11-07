@@ -243,7 +243,7 @@ AxisAPI.CutsceneLogger = function(name)
 		if cam.CameraType ~= defaultCamera then
 			startCutsceneLog()
 		elseif cam.CameraType == defaultCamera then
-			finishCutsceneLog(name)
+			finishCutsceneLog(fileName)
 		end
 	end)
 end
