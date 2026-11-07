@@ -61,7 +61,7 @@
 local AnimPlayer = {}
 AnimPlayer.__index = AnimPlayer
 AnimPlayer.ClassName = 'Animator'
-AnimPlayer.Version = 3.91
+AnimPlayer.Version = 3.93
 
 if not Signal then
 	local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/LUAUTools/LuauPureSignal.luau"))() or require(script:FindFirstChild('LuauPureSignal'))
