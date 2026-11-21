@@ -235,7 +235,6 @@ local function enableDefaultAnimations(self)
 	local Animator = Humanoid:FindFirstChild('Animator')
 	if not Animator then Instance.new('Animator', Humanoid) end
 
-	-- Los LocalScript usan Disabled, no Enabled
 	Animate.Disabled = false
 end
 
@@ -243,6 +242,7 @@ function AnimPlayer.new(charRig, anim)
 	if typeof(charRig) ~= 'Instance' or not charRig:IsA('Model') then error('[ERROR]: Invalid #1 argument (not a model)') end
 	
 	local self = setmetatable({}, AnimPlayer)
+	self.AnimationId = anim
 	self.Destroyed = false
 	
 	self.Stopped = Signal.new()
@@ -251,10 +251,10 @@ function AnimPlayer.new(charRig, anim)
 	self.Sequence = {}
 	self.Looped = false
 	
-	if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
-		self.Sequence, self.Looped = ConvertToTable(anim)
-	elseif typeof(anim) == 'table' then
-		self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped or false
+	if typeof(self.AnimationId) == 'Instance' and self.AnimationId:IsA('KeyframeSequence') then
+		self.Sequence, self.Looped = ConvertToTable(self.AnimationId)
+	elseif typeof(self.AnimationId) == 'table' then
+		self.Sequence, self.Looped = ConvertAnimationTable(self.AnimationId), self.AnimationId.Looped or false
 	end
 	
 	assert(#self.Sequence > 0, 'Animation sequence is empty')
@@ -265,7 +265,6 @@ function AnimPlayer.new(charRig, anim)
 	self.TimePosition, self.CurrentKeyframe = 0, 1
 	self.IsPlaying = false
 
-	-- Duración del fade in/out en segundos (como el FadeTime de los AnimationTracks)
 	self.FadeTime = 0.15
 
 	self.SavedC0 = {}
@@ -311,7 +310,6 @@ function AnimPlayer:Play()
 	if self.IsPlaying then return end
 	disableDefaultAnimations(self)
 
-	-- Reconectar diedConnection si fue desconectado por un Stop anterior
 	if not self.diedConnection then
 		local humanoid = self.Character:FindFirstChild('Humanoid')
 		if humanoid then
@@ -326,7 +324,6 @@ function AnimPlayer:Play()
 	self.TimePosition = 0
 	self.FadeInPosition = 0
 
-	-- Capturar la pose actual del rig para el fade-in
 	self.StartC0 = {}
 	for motor in pairs(self.SavedC0) do
 		self.StartC0[motor] = motor.C0
@@ -389,7 +386,6 @@ function AnimPlayer:Play()
 						targetC0 = self.SavedC0[motor] * cf
 					end
 
-					-- FADE-IN: mezclar la pose capturada al iniciar con la pose de la animación
 					if self.FadeTime and self.FadeTime > 0 and self.StartC0[motor] then
 						local fadeAlpha = math.clamp(self.FadeInPosition / self.FadeTime, 0, 1)
 						motor.C0 = self.StartC0[motor]:Lerp(targetC0, fadeAlpha)
@@ -423,7 +419,6 @@ function AnimPlayer:Stop(restore)
 	end
 
 	if restore == true then
-		-- FADE-OUT: volver suavemente a la pose original antes de restaurar
 		local startC0 = {}
 		for motor in pairs(self.SavedC0) do
 			startC0[motor] = motor.C0
@@ -433,7 +428,6 @@ function AnimPlayer:Stop(restore)
 		task.spawn(function()
 			local t = 0
 			while t < fadeTime do
-				-- Cancelar el fade si se vuelve a reproducir la animación
 				if self.IsPlaying then return end
 				local dt = task.wait()
 				t += dt
