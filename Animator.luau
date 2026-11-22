@@ -59,9 +59,25 @@ local introduction = [[
 ]]
 
 local AnimPlayer = {}
-AnimPlayer.__index = AnimPlayer
+
+AnimPlayer.__index = function(self, key)
+	if key == "AnimationId" then
+		return rawget(self, "_AnimationId")
+	end
+
+	return AnimPlayer[key]
+end
+
+AnimPlayer.__newindex = function(self, key, value)
+	if key == "AnimationId" then
+		return
+	end
+
+	rawset(self, key, value)
+end
+
 AnimPlayer.ClassName = 'Animator'
-AnimPlayer.Version = 3.93
+AnimPlayer.Version = 3.95
 
 local Signal = Signal
 local Maid = Maid
@@ -242,7 +258,6 @@ function AnimPlayer.new(charRig, anim)
 	if typeof(charRig) ~= 'Instance' or not charRig:IsA('Model') then error('[ERROR]: Invalid #1 argument (not a model)') end
 	
 	local self = setmetatable({}, AnimPlayer)
-	self.AnimationId = anim
 	self.Destroyed = false
 	
 	self.Stopped = Signal.new()
@@ -251,12 +266,14 @@ function AnimPlayer.new(charRig, anim)
 	self.Sequence = {}
 	self.Looped = false
 	
-	if typeof(self.AnimationId) == 'Instance' and self.AnimationId:IsA('KeyframeSequence') then
+	if typeof(anim) == 'Instance' and anim:IsA('KeyframeSequence') then
 		self.Sequence, self.Looped = ConvertToTable(self.AnimationId)
-	elseif typeof(self.AnimationId) == 'table' then
-		self.Sequence, self.Looped = ConvertAnimationTable(self.AnimationId), self.AnimationId.Looped or false
+	elseif typeof(anim) == 'table' then
+		self.Sequence, self.Looped = ConvertAnimationTable(anim), anim.Looped or false
 	end
 	
+	assert(#self.Sequence > 0, "Animation sequence is empty")
+
 	self.Character = charRig
 	self.Motors, self.LowerMap = BuildMotorMap(charRig)
 	self.Speed, self.Length = 1, self.Sequence[#self.Sequence].Time
