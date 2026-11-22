@@ -257,8 +257,6 @@ function AnimPlayer.new(charRig, anim)
 		self.Sequence, self.Looped = ConvertAnimationTable(self.AnimationId), self.AnimationId.Looped or false
 	end
 	
-	assert(#self.Sequence > 0, 'Animation sequence is empty')
-	
 	self.Character = charRig
 	self.Motors, self.LowerMap = BuildMotorMap(charRig)
 	self.Speed, self.Length = 1, self.Sequence[#self.Sequence].Time
