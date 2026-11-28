@@ -30,21 +30,27 @@ local TS = game:GetService('TweenService');
 --// LOCAL {
 local PLR = PLRS.LocalPlayer;
 local CHAR = PLR.Character or PLR.CharacterAdded:Wait();
+local HEAD = CHAR:WaitForChild("Head");
 local HUM = CHAR:WaitForChild('Humanoid');
 --}
 
 --// INSTANCES {
 local sound50 = Instance.new('Sound', SS);
-sound50.Volume = 2
 sound50.Name = 'Emote';
+sound50.Volume = 2;
+sound50.Looped = true;
+
+local deathSound = Instance.new("Sound", HEAD);
+deathSound.Name = "Death lol";
+deathSound.Volume = 3;
 
 local ost3 = Instance.new('Sound', SS);
 ost3.Name = 'Background';
 
 local bgui = Instance.new('BillboardGui', CHAR.Head);
-bgui.AlwaysOnTop = true
-bgui.StudsOffset = Vector3.new(0, 0.4, 0)
-bgui.Size = UDim2.fromScale(1, 1)
+bgui.AlwaysOnTop = true;
+bgui.StudsOffset = Vector3.new(0, 0.4, 0);
+bgui.Size = UDim2.fromScale(1, 1);
 --}
 
 --// VALUES {
@@ -91,7 +97,7 @@ local EMOTES_PAGES = {
     };
     [3] = { -- generic emotes again
         ['one'] = {music = 'Evil Musics/konton_boogie-background.mp3', anim = 'konton_boogie-animation.luau'},
-        ['two'] = {music = 'Evil Musics/yonky-background.mp3', anim = 'yonky-animation.luau'},
+        ['two'] = {music = 'Evil Musics/yoinky-background.mp3', anim = 'yoinky-animation.luau'},
         ['three'] = {music = 'Evil Musics/party_hips-background.mp3', anim = 'party_hips-animation.luau'},
         ['four'] = {music = 'Evil Musics/internet-background.mp3', anim = 'internet-animation.luau'},
         ['five'] = {music = 'Evil Musics/vegetable_juice-background.mp3', anim = 'vegetable_juice-animation.luau'},
@@ -116,8 +122,8 @@ local EMOTES_PAGES = {
     [5] = { -- additional emotes
         ['one'] = {music = 'Evil Musics/the_hero-background.mp3', anim = 'the_hero-animation.luau'},
         ['two'] = {music = 'Evil Musics/the_flop-background.mp3', anim = 'the_flop-animation.luau'},
-        ['three'] = {music = 'Evil Musics/pog-background.mp3', anim = 'pog-animation.luau'},
-        --['four'] = {music = 'Evil Musics/pogo-background.mp3', anim = 'pogo-animation.luau'},
+        ['three'] = {music = 'Evil Musics/parrot-background.mp3', anim = 'parrot-animation.luau'},
+        ['four'] = {music = 'Evil Musics/pogo-background.mp3', anim = 'pogo-animation.luau'},
         ['five'] = {music = 'Evil Musics/its_a_secret-background.mp3', anim = 'its_a_secret-animation.luau'},
         ['six'] = {music = 'Evil Musics/rakuten-background.mp3', anim = 'rakuten-animation.luau'},
         ['seven'] = {music = 'Evil Musics/moongazer-background.mp3', anim = 'moongazer-animation.luau'},
@@ -145,7 +151,7 @@ local function HTTP_REQUEST(id, rep, write)
     local name = id:gsub('Evil Musics/', ''):gsub('Evil Effects/', '')
 
     if write then
-        if isfile and writefile and not isfile(id) then
+        if writefile and isfile and not isfile(id) then
             local url = 'https://github.com/taskSpawner2666/SpawnerStuff/raw/refs/heads/main/'.. rep.. "/".. name
             local success, body = pcall(function() return game:HttpGet(url) end)
             
@@ -184,12 +190,22 @@ local function chooseOst()
     end
 end
 
+local function randomDeathSOUND()
+	local choice = math.random(1, 4)
+	if choice == 1 then return "rbxassetid://88395969410429"
+	elseif choice == 2 then return "rbxassetid://105361295706785"
+	elseif choice == 3 then return "rbxassetid://133843340754810"
+	elseif choice == 4 then return "rbxassetid://111984442168614"
+	end
+end
+
 local function playanim(anim, model, loop, speed)
     loop = loop == nil and true or loop
     speed = speed or 1
 
     if currentanim then
-        currentanim:Stop()
+        currentanim:Stop(true)
+        if currentanim.Destroy then currentanim:Destroy() end
         currentanim = nil
     end
 
@@ -212,7 +228,7 @@ local function spawnSticker(image, soundId)
     sticker.Position = UDim2.fromScale(0.5, 0.5)
     sticker.Size = UDim2.fromScale(2, 2)
 
-    local sound = Instance.new('Sound', CHAR.Head)
+    local sound = Instance.new('Sound', HEAD)
     sound.SoundId = HTTP_REQUEST(soundId, 'Sound%20Effects', true)
     sound.Volume = 2
 
@@ -231,10 +247,11 @@ end
 
 local function stopanim(resumeOst)
     if currentanim then
-        currentanim:Stop()
+        currentanim:Stop(true)
+        if currentanim.Destroy then currentanim:Destroy() end
         currentanim = nil
     end
-
+	
     sound50:Stop()
     dancing = false
 
@@ -450,12 +467,12 @@ INPUTCONNECT = UIS.InputBegan:Connect(function(input, gameProcessed)
 	
 	if k == 'backspace' then
 		return_stickers = not return_stickers
-        if return_stickers then
-            for _,v in bgui:GetChildren() do if v:IsA("ImageLabel") then v:Destroy() end end
-            for _,v in CHAR.Head:GetChildren() do if v:IsA("Sound") then v:Destroy() end end
-        end
-
-        SG:SetCore('SendNotification', {
+		if return_stickers then
+			for _,v in bgui:GetChildren() do if v.Name == "StickerInstance" then v:Destroy() end end
+			for _,v in HEAD:GetChildren() do if v.Name == "StickerSoundInstance" then v:Destroy() end end
+		end
+	
+		SG:SetCore('SendNotification', {
 			Title = 'Evil Experience',
 			Text = return_stickers and 'Stickers Disabled.' or 'Stickers Enabled.',
 			Duration = 3.5
@@ -476,7 +493,6 @@ end)
 --// INIT BACKGROUND MUSIC {
 ost3.SoundId = chooseOst()
 if ost3.SoundId then ost3:Play() end
-
 OSTENDED = ost3.Ended:Connect(function()
 	ost3.SoundId = chooseOst()
 	if ost3.SoundId then ost3:Play() end
@@ -485,15 +501,22 @@ end)
 
 --// CLEANUP ON DEATH {
 HUM.Died:Connect(function()
-	stopanim(false)
-    if currentanim then currentanim:Destroy() end
-	if sound50 then sound50:Destroy() end
-	if ost3 then ost3:Destroy() end
-	if bgui then bgui:Destroy() end
-	if INPUTCONNECT then INPUTCONNECT:Disconnect() INPUTCONNECT = nil end
-	if OSTENDED then OSTENDED:Disconnect() OSTENDED = nil end
-	for _,v in CHAR.Head:GetChildren() do if v:IsA('Sound') then v:Destroy() end end
-	
+	deathSound.SoundId = randomDeathSOUND()
+	deathSound:Play()
+
+	deathSound.Ended:Once(function()
+		stopanim(false)
+		if sound50 then sound50:Destroy() end
+		if ost3 then ost3:Destroy() end
+		if bgui then bgui:Destroy() end
+		if INPUTCONNECT then INPUTCONNECT:Disconnect() INPUTCONNECT = nil end
+		if OSTENDED then OSTENDED:Disconnect() OSTENDED = nil end
+
+		task.spawn(function()
+			for _,v in HEAD:GetChildren() do if v:IsA('Sound') and v.Name ~= "Death lol" then v:Destroy() end end
+		end)
+	end)
+
 	_G.EvilExperienceLoaded = nil
 end)
 --}
