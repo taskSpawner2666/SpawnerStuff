@@ -5,7 +5,7 @@
 --]]
 
 --// TO PREVENT CONSTANT CODE EXECUTION {
-if _G.EvilExperienceLoaded then return end
+if _G.EvilExperienceLoaded then warn("WARN: Script already playing (reset character)") return end
 _G.EvilExperienceLoaded = true
 --}
 
@@ -43,8 +43,8 @@ ost3.Name = 'Background';
 
 local bgui = Instance.new('BillboardGui', CHAR.Head);
 bgui.AlwaysOnTop = true
-bgui.Size = UDim2.new(1, 0, 1, 0)
-bgui.StudsOffset = Vector3.new(0, 1.5, 0)
+bgui.StudsOffset = Vector3.new(0, 0.4, 0)
+bgui.Size = UDim2.fromScale(1, 1)
 --}
 
 --// VALUES {
@@ -98,7 +98,7 @@ local EMOTES_PAGES = {
         ['six'] = {music = 'Evil Musics/liar_dancer-background.mp3', anim = 'liar_dancer-animation.luau'},
         ['seven'] = {music = 'Evil Musics/doodle-background.mp3', anim = 'doodle-animation.luau'},
         ['eight'] = {music = 'Evil Musics/hyadain-background.mp3', anim = 'hyadain-animation.luau'},
-        ['nine'] = {music = 'Evil Musics/girl_girl_dansu-background.mp3', anim = 'girl_girl_dansu-animation.luau'},
+        ['nine'] = {music = 'Evil Musics/giri_giri_dansu-background.mp3', anim = 'giri_giri_dansu-animation.luau'},
         ['zero'] = {music = 'Evil Musics/die_lit-background.mp3', anim = 'die_lit-animation.luau'}
     };
     [4] = { -- emotes with effects
@@ -117,13 +117,13 @@ local EMOTES_PAGES = {
         ['one'] = {music = 'Evil Musics/the_hero-background.mp3', anim = 'the_hero-animation.luau'},
         ['two'] = {music = 'Evil Musics/the_flop-background.mp3', anim = 'the_flop-animation.luau'},
         ['three'] = {music = 'Evil Musics/pog-background.mp3', anim = 'pog-animation.luau'},
-        ['four'] = {music = 'Evil Musics/pogo-background.mp3', anim = 'pogo-animation.luau'},
+        --['four'] = {music = 'Evil Musics/pogo-background.mp3', anim = 'pogo-animation.luau'},
         ['five'] = {music = 'Evil Musics/its_a_secret-background.mp3', anim = 'its_a_secret-animation.luau'},
         ['six'] = {music = 'Evil Musics/rakuten-background.mp3', anim = 'rakuten-animation.luau'},
         ['seven'] = {music = 'Evil Musics/moongazer-background.mp3', anim = 'moongazer-animation.luau'},
         ['eight'] = {music = 'Evil Musics/boogie_down-background.mp3', anim = 'boogie_down-animation.luau'},
         ['nine'] = {music = 'Evil Musics/assumptions-background.mp3', anim = 'assumptions-animation.luau'},
-        ['zero'] = {music = 'Evil Musics/shigure_osaka-background.mp3', anim = 'shigure_osaka-animation.luau'}
+        ['zero'] = {music = 'Evil Musics/shigure_ui-background.mp3', anim = 'shigure_ui-animation.luau'}
     };
 }
 
@@ -132,11 +132,11 @@ local STICKERS = {
 	['e'] = {sound = 'Evil Effects/que_pro-effect.mp3', image = 8373881910}, ['g'] = {sound = 'Evil Effects/get_out-effect.mp3', image = 78437391}, ['v'] = {sound = 'Evil Effects/you_bastards-effect.mp3', image = 13981973301},
 	['r'] = {sound = 'Evil Effects/sad_spongebob-effect.mp3', image = 10729455634}, ['h'] = {sound = 'Evil Effects/tsundere-effect.mp3', image = 94404853592451}, ['b'] = {sound = 'Evil Effects/bruh-effect.mp3', image = 5264933189},
 	['t'] = {sound = 'Evil Effects/einstein_tesla-effect.mp3', image = 15285912871}, ['j'] = {sound = 'Evil Effects/boykisser-effect.mp3', image = 14841432885}, ['n'] = {sound = 'Evil Effects/eric_crying-effect.mp3', image = 14821042789},
-	['y'] = {sound = 'Evil Effects/iq-effect.mp3', image = 9905477935}, ['k'] = {sound = 'Evil Effects/mr_krabs_nwtf-effect.mp3', image = 18651621418}, ['m'] = {sound = 'Evil Effects/mambo-effect.mp3', image = 94292546842967},
+	['y'] = {sound = 'Evil Effects/iq-effect.mp3', image = 9905477935}, ['k'] = {sound = 'Evil Effects/100_dollars-effect.mp3', image = 18651621418}, ['m'] = {sound = 'Evil Effects/mambo-effect.mp3', image = 94292546842967},
 	['u'] = {sound = 'Evil Effects/ysn-effect.mp3', image = 9802355141}, ['l'] = {sound = 'Evil Effects/say_wallahi-effect.mp3', image = 117651988026572},
-	['i'] = {sound = 'Evil Effects/are_u_sure-effect.mp3', image = 78733623040503}, ['ñ'] = {sound = 'Evil Effects/pocion_china-effect.mp3', image = 13303012170},
-	['o'] = {sound = 'Evil Effects/ah_shit_hwga-effect.mp3', image = 14979876817}, ['z'] = {sound = 'Evil Effects/nya-effect.mp3', image = 9758741504},
-	['p'] = {sound = 'Evil Effects/what_tf-oo-effect.mp3', image = 5178174483}, ['x'] = {sound = 'Evil Effects/polyester-effect.mp3', image = 126679032426885},
+	['i'] = {sound = 'Evil Effects/are_u_sure-effect.mp3', image = 78733623040503}, ['ñ'] = {sound = 'Evil Effects/pocion_china-effect.mp3', image = 77947597511300},
+	['o'] = {sound = 'Evil Effects/ah_shwga-effect.mp3', image = 14979876817}, ['z'] = {sound = 'Evil Effects/burenyuu-effect.mp3', image = 9758741504},
+	['p'] = {sound = 'Evil Effects/wtf_boom-effect.mp3', image = 5178174483}, ['x'] = {sound = 'Evil Effects/polyester-effect.mp3', image = 127092847754218},
 }
 --}
 
@@ -146,11 +146,12 @@ local function HTTP_REQUEST(id, rep, write)
 
     if write then
         if isfile and writefile and not isfile(id) then
-            local url = 'https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/'.. rep.. name
+            local url = 'https://github.com/taskSpawner2666/SpawnerStuff/raw/refs/heads/main/'.. rep.. "/".. name
             local success, body = pcall(function() return game:HttpGet(url) end)
             
             if success and body then
                 writefile(id, body)
+				print(url)
             else
                 warn('Failed to load music: ' .. url)
                 return nil
@@ -162,7 +163,7 @@ local function HTTP_REQUEST(id, rep, write)
         else warn('Expected `getcustomasset` global function. Incompatible executor.') return nil
         end
     else
-        local url = 'https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/'.. rep.. name
+        local url = 'https://raw.githubusercontent.com/taskSpawner2666/SpawnerStuff/refs/heads/main/'.. rep.. "/".. name
         local success, body = pcall(function() return game:HttpGet(url) end)
         
         if success and body then
@@ -188,7 +189,8 @@ local function playanim(anim, model, loop, speed)
     speed = speed or 1
 
     if currentanim then
-        currentanim:Destroy()
+        currentanim:Stop()
+        currentanim = nil
     end
 
     local newAnim = Animator.new(model, anim)
@@ -204,16 +206,18 @@ local function spawnSticker(image, soundId)
     local sticker = Instance.new('ImageLabel', bgui)
     sticker.Image = 'rbxthumb://type=Asset&id='.. tostring(image) ..'&w=420&h=420'
     sticker.ImageTransparency = 0
+    sticker.BackgroundTransparency = 0
+    sticker.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     sticker.AnchorPoint = Vector2.new(0.5, 0.5)
     sticker.Position = UDim2.fromScale(0.5, 0.5)
     sticker.Size = UDim2.fromScale(2, 2)
 
     local sound = Instance.new('Sound', CHAR.Head)
     sound.SoundId = HTTP_REQUEST(soundId, 'Sound%20Effects', true)
-    sound.Volume = 1.85
+    sound.Volume = 2
 
     sound.Ended:Connect(function()
-        local tween = TS:Create(sticker, TweenInfo.new(1), {ImageTransparency = 1})
+        local tween = TS:Create(sticker, TweenInfo.new(1), {ImageTransparency = 1, BackgroundTransparency = 1})
         tween.Completed:Connect(function()
             sticker:Destroy()
             sound:Destroy()
@@ -227,7 +231,7 @@ end
 
 local function stopanim(resumeOst)
     if currentanim then
-        currentanim:Destroy()
+        currentanim:Stop()
         currentanim = nil
     end
 
@@ -446,7 +450,12 @@ INPUTCONNECT = UIS.InputBegan:Connect(function(input, gameProcessed)
 	
 	if k == 'backspace' then
 		return_stickers = not return_stickers
-		SG:SetCore('SendNotification', {
+        if return_stickers then
+            for _,v in bgui:GetChildren() do if v:IsA("ImageLabel") then v:Destroy() end end
+            for _,v in CHAR.Head:GetChildren() do if v:IsA("Sound") then v:Destroy() end end
+        end
+
+        SG:SetCore('SendNotification', {
 			Title = 'Evil Experience',
 			Text = return_stickers and 'Stickers Disabled.' or 'Stickers Enabled.',
 			Duration = 3.5
@@ -477,6 +486,7 @@ end)
 --// CLEANUP ON DEATH {
 HUM.Died:Connect(function()
 	stopanim(false)
+    if currentanim then currentanim:Destroy() end
 	if sound50 then sound50:Destroy() end
 	if ost3 then ost3:Destroy() end
 	if bgui then bgui:Destroy() end
